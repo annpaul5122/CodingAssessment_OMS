@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using Order_Management_System.Utility;
+using System.Diagnostics.Contracts;
+using System.Security.Principal;
 
 namespace Order_Management_System.Repository
 {
@@ -21,7 +23,7 @@ namespace Order_Management_System.Repository
         }
         public bool cancelOrder(int userId, int orderId)
         {
-            cmd.CommandText = "Delete from Order where userId=@user and orderId=@order";
+            cmd.CommandText = "Delete from [Order] where userId=@user and orderId=@order";
             cmd.Parameters.AddWithValue("@user", userId);
             cmd.Parameters.AddWithValue("@order", orderId);
             connect.Open();
@@ -39,7 +41,7 @@ namespace Order_Management_System.Repository
             int status = 0;
             if(UserExists(user.UserId))
             {
-                cmd.CommandText = "Insert into Order values(@userId,@productId)";
+                cmd.CommandText = "Insert into [Order] values(@userId,@productId)";
                 cmd.Parameters.AddWithValue("@productId", product.ProductId);
                 cmd.Parameters.AddWithValue("@userId", user.UserId);
                 connect.Open();
@@ -57,7 +59,7 @@ namespace Order_Management_System.Repository
                 cmd.Parameters.AddWithValue("@pwd", user.Password);
                 cmd.Parameters.AddWithValue("@role", user.Role);
                 cmd.ExecuteNonQuery();
-                cmd.CommandText = "Insert into Order values(@userId,@productId)";
+                cmd.CommandText = "Insert into [Order] values(@userId,@productId)";
                 cmd.Parameters.AddWithValue("@productId", product.ProductId);
                 cmd.Parameters.AddWithValue("@userId", user.UserId);
                 status = cmd.ExecuteNonQuery();
@@ -87,13 +89,39 @@ namespace Order_Management_System.Repository
             return false;
         }
 
+        public bool IfAdminOrNot(int id)
+        {
+            string role = "";
+            try
+            {
+                cmd.CommandText = "select [role] from [User] where userId = @id";
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Connection = connect;
 
+                connect.Open();
+
+                SqlDataReader r = cmd.ExecuteReader();
+                while(r.Read())
+                {
+                    role = (string)r["role"];
+                }
+                if (role.Equals("Admin"))
+                {
+                    return true;
+                }
+
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
 
         public bool createProduct(User user, Product product)
         {
             int status = 0;
-            if(UserExists(user.UserId) && user.Role=="Admin")
-            {
+            
                 cmd.CommandText = "Insert into Product values (@name,@desc,@price,@qty,@type)";
                 cmd.Parameters.AddWithValue("@name",product.ProductName);
                 cmd.Parameters.AddWithValue("@desc", product.Description);
@@ -105,7 +133,7 @@ namespace Order_Management_System.Repository
                 status=cmd.ExecuteNonQuery();
                 cmd.Parameters.Clear();
                 connect.Close();
-            }
+           
             if (status > 0)
                 return true;
             return false;
@@ -152,7 +180,7 @@ namespace Order_Management_System.Repository
         public List<Product> getOrderByUser(User user)
         {
             List<Product> products = new List<Product>();
-            cmd.CommandText = "Select * from Product p join Order o on p.productId=o.productId where o.userId=@userid";
+            cmd.CommandText = "Select * from Product p join [Order] o on p.productId=o.productId where o.userId=@userid";
             cmd.Parameters.AddWithValue("@userid", user.UserId);
             connect.Open();
             cmd.Connection = connect;
@@ -176,7 +204,7 @@ namespace Order_Management_System.Repository
         public bool OrderExists(int orderId)
         {
             int count = 0;
-            cmd.CommandText = "Select count(*) as total from Order where orderId=@id";
+            cmd.CommandText = "Select count(*) as total from [Order] where orderId=@id";
             cmd.Parameters.AddWithValue("@id", orderId);
             connect.Open();
             cmd.Connection = connect;

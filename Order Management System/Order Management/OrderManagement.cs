@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Order_Management_System.Service;
+using Order_Management_System.Repository;
 
 namespace Order_Management_System.Order_Management
 {
@@ -43,26 +44,30 @@ namespace Order_Management_System.Order_Management
                         break;
 
                     case 2:
-
+                        OrderProcessor order =new OrderProcessor();
                         Console.WriteLine("Enter userid: ");
                         int u_id = int.Parse(Console.ReadLine());
-                        Console.WriteLine("Enter role (Admin/User): ");
-                        string u_role = Console.ReadLine();
-                        user = new User() { UserId = u_id, Role = u_role };
-                        Console.WriteLine("Enter productid: ");
-                        int p_id = int.Parse(Console.ReadLine());
-                        Console.WriteLine("Enter productName: ");
-                        string p_name = Console.ReadLine();
-                        Console.WriteLine("Enter description: ");
-                        string desc = Console.ReadLine();
-                        Console.WriteLine("Enter price: ");
-                        decimal price = decimal.Parse(Console.ReadLine());
-                        Console.WriteLine("Enter quantity: ");
-                        int qty = int.Parse(Console.ReadLine());
-                        Console.WriteLine("Enter Type: ");
-                        string type = Console.ReadLine();
-                        product = new Product(p_id, p_name, desc, price, qty, type);
-                        service.CreateNewProduct(user, product);
+                      
+                        user = new User() { UserId = u_id };
+                        if (order.UserExists(u_id) && order.IfAdminOrNot(u_id))
+                        {
+                            Console.WriteLine("Enter productid: ");
+                            int p_id = int.Parse(Console.ReadLine());
+                            Console.WriteLine("Enter productName: ");
+                            string p_name = Console.ReadLine();
+                            Console.WriteLine("Enter description: ");
+                            string desc = Console.ReadLine();
+                            Console.WriteLine("Enter price: ");
+                            decimal price = decimal.Parse(Console.ReadLine());
+                            Console.WriteLine("Enter quantity: ");
+                            int qty = int.Parse(Console.ReadLine());
+                            Console.WriteLine("Enter Type: ");
+                            string type = Console.ReadLine();
+                            product = new Product(p_id, p_name, desc, price, qty, type);
+                            service.CreateNewProduct(user, product);
+                        }
+                        else
+                            Console.WriteLine("Not an admin");
                         break;
 
                     case 3:
