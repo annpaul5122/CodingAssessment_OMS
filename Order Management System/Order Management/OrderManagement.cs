@@ -28,19 +28,27 @@ namespace Order_Management_System.Order_Management
                 switch (choice)
                 {
                     case 1:
+                        OrderProcessor order1 = new OrderProcessor();
                         Console.WriteLine("Enter user id: ");
                         int userId = int.Parse(Console.ReadLine());
-                        Console.WriteLine("Enter username: ");
-                        string name = Console.ReadLine();
-                        Console.WriteLine("Enter password: ");
-                        string pwd = Console.ReadLine();
-                        Console.WriteLine("Enter Role (Admin/User): ");
-                        string role = Console.ReadLine();
-                        user = new User(userId, name, pwd, role);
+                        User user1 = new User() { UserId = userId };
                         Console.WriteLine("Enter product id: ");
                         int productId = int.Parse(Console.ReadLine());
                         product = new Product() { ProductId = productId };
-                        service.CreateNewOrder(user, product);
+                        if (order1.UserExists(userId))
+                            service.CreateNewOrder(user1, product);
+                        else
+                        {
+
+                            Console.WriteLine("Enter username: ");
+                            string name = Console.ReadLine();
+                            Console.WriteLine("Enter password: ");
+                            string pwd = Console.ReadLine();
+                            Console.WriteLine("Enter Role (Admin/User): ");
+                            string role = Console.ReadLine();
+                            user = new User(userId,name,pwd,role);
+                            service.CreateNewOrder(user, product);
+                        }
                         break;
 
                     case 2:

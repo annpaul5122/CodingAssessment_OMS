@@ -59,10 +59,14 @@ namespace Order_Management_System.Repository
                 cmd.Parameters.AddWithValue("@pwd", user.Password);
                 cmd.Parameters.AddWithValue("@role", user.Role);
                 cmd.ExecuteNonQuery();
+                cmd.Parameters.Clear();
+                connect.Close();
+                connect.Open();
                 cmd.CommandText = "Insert into [Order] values(@userId,@productId)";
                 cmd.Parameters.AddWithValue("@productId", product.ProductId);
                 cmd.Parameters.AddWithValue("@userId", user.UserId);
                 status = cmd.ExecuteNonQuery();
+                connect.Close();
                 cmd.Parameters.Clear();
                 connect.Close();    
             }
